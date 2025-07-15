@@ -3,12 +3,26 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+appsettings.*.json
+!appsettings.Development.json  # Keep this one if safe
+
+
 # User-specific files
 *.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+
+udio add-ons.
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.log
+packages/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
