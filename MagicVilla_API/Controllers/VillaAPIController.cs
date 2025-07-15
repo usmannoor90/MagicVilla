@@ -58,10 +58,7 @@ namespace MagicVilla_API.Controllers
                 return BadRequest();
             }
 
-            if (villa.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+
 
             Villa model = new Villa()
             {
