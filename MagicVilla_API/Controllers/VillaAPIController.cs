@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MagicVilla_API.Controllers;
 
-[Route("api/villaAPI")]
+[Route("api/v{version:apiVersion}/villaAPI")]
 [ApiController]
+[ApiVersion("1.0", Deprecated = true)]
+[ApiVersion("2.0")]
+// these both versions will show all of the endpoints. if we specify with maptoapiversion then that endpoint will be shown based on version. and if we do not specify the maptoapiversoin on any endpoint than it will be show on ApiVersion 1 and ApiVersion 2 regardless. for other controllers if you do not mentioned ApiVersion there then default version will be considered. 
 public class VillaAPIController : ControllerBase
 {
     private readonly ApplicationDbContext _dbContext;
@@ -22,7 +25,18 @@ public class VillaAPIController : ControllerBase
     //[Route("getvilla/")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [MapToApiVersion("1.0")]
+    // this is basically cashing it is be cashed for 10 s and location can be any either on client or server and then no store is property in the headers that is false means we do need to store the data. and after 10s data will be changed if in client it will validate the new data.
+    [ResponseCache(Duration = 10, Location = ResponseCacheLocation.Any, NoStore = false, CacheProfileName = "getVillas")]
     public ActionResult<IEnumerable<VillaDTO>> GetVillas()
+    {
+        return Ok(_dbContext.Villas.ToList());
+    }
+
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [MapToApiVersion("2.0")]
+    public ActionResult<IEnumerable<VillaDTO>> GetVillas2()
     {
         return Ok(_dbContext.Villas.ToList());
     }
@@ -31,6 +45,7 @@ public class VillaAPIController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ResponseCache()]
 
     public ActionResult<VillaDTO> GetVilla(int id)
     {
@@ -60,8 +75,6 @@ public class VillaAPIController : ControllerBase
             return BadRequest();
         }
 
-
-
         Villa model = new Villa()
         {
             Amenity = villa.Amenity,
@@ -77,6 +90,7 @@ public class VillaAPIController : ControllerBase
         _dbContext.Villas.Add(model);
 
         _dbContext.SaveChanges();
+
 
         return CreatedAtRoute("GetVilla", new { id = villa.Id }, villa);
     }
@@ -136,7 +150,10 @@ public class VillaAPIController : ControllerBase
         _dbContext.SaveChanges();
         return NoContent();
     }
+
     [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
+    [MapToApiVersion("2.0")]
+
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public ActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDTO> patchdto)

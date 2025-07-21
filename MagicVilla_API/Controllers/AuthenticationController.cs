@@ -7,9 +7,10 @@ using System.Text;
 
 namespace MagicVilla_API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [AllowAnonymous]
+[ApiVersion("2.0", Deprecated = true)]
 public class AuthenticationController : ControllerBase
 {
     private readonly IConfiguration _config;

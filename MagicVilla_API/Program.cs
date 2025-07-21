@@ -16,6 +16,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(opt =>
 
 
 var services = AllServices.RegisterServicesMethod(builder.Services);
+services.AddApiVersioning(opt =>
+{
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.DefaultApiVersion = new(1, 0);
+    opt.ReportApiVersions = true;
+});
+
+services.AddVersionedApiExplorer(opt =>
+{
+    opt.GroupNameFormat = "'v'VVV";
+    opt.SubstituteApiVersionInUrl = true;
+});
+
+services.AddResponseCaching();
 
 // this authorization will be applied to the whole application unless you use decorator of [AllowAnonymous] on the class or on the endpoint.
 services.AddAuthorization(opt =>
@@ -44,14 +58,20 @@ services.AddAuthentication("Bearer").AddJwtBearer(opt =>
 });
 
 
-var app = builder.Build();
 
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opt =>
+    {
+        opt.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        opt.SwaggerEndpoint("/swagger/v2/swagger.json", "v2");
+
+    });
 }
+
 
 app.UseCors(static policy => policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
@@ -60,6 +80,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseResponseCaching();
 
 app.MapControllers();
 
